@@ -16,6 +16,8 @@ assert r["login"]["result"] == "Success", r
 d = s.get(API, params={"action": "query", "meta": "notifications",
     "notprop": "list", "notformat": "text", "notfilter": "!read",
     "notlimit": 50, "format": "json"}).json()
+if "query" not in d:
+    raise SystemExit(f"Erreur API: {d}")
 items = d["query"]["notifications"]["list"]
 
 seen = set(json.load(open("seen.json"))) if os.path.exists("seen.json") else set()
