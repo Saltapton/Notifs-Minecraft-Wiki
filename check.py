@@ -4,13 +4,13 @@ API = "https://fr.minecraft.wiki/api.php"
 s = requests.Session()
 s.headers["User-Agent"] = "notif-bridge/0.1 (perso)"
 
+u = os.environ["WIKI_USER"].strip()
+p = os.environ["WIKI_PASS"].strip()
+
 tok = s.get(API, params={"action": "query", "meta": "tokens",
     "type": "login", "format": "json"}).json()["query"]["tokens"]["logintoken"]
 r = s.post(API, data={"action": "login", "lgname": u,
     "lgpassword": p, "lgtoken": tok, "format": "json"}).json()
-u = os.environ["WIKI_USER"].strip(); p = os.environ["WIKI_PASS"].strip()
-print("user:", len(u), "caracteres,", u.count("@"), "arobase, espaces en trop:", len(u) - len(u.strip()))
-print("pass:", len(p), "caracteres, espaces en trop:", len(p) - len(p.strip()))
 assert r["login"]["result"] == "Success", r
 
 d = s.get(API, params={"action": "query", "meta": "notifications",
