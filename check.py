@@ -8,6 +8,9 @@ tok = s.get(API, params={"action": "query", "meta": "tokens",
     "type": "login", "format": "json"}).json()["query"]["tokens"]["logintoken"]
 r = s.post(API, data={"action": "login", "lgname": os.environ["WIKI_USER"],
     "lgpassword": os.environ["WIKI_PASS"], "lgtoken": tok, "format": "json"}).json()
+u = os.environ["WIKI_USER"]; p = os.environ["WIKI_PASS"]
+print("user:", len(u), "caracteres,", u.count("@"), "arobase, espaces en trop:", len(u) - len(u.strip()))
+print("pass:", len(p), "caracteres, espaces en trop:", len(p) - len(p.strip()))
 assert r["login"]["result"] == "Success", r
 
 d = s.get(API, params={"action": "query", "meta": "notifications",
