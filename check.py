@@ -15,22 +15,26 @@ assert r["login"]["result"] == "Success", r
 
 d = s.get(API, params={"action": "query", "meta": "notifications",
     "notprop": "list", "notformat": "flyout", "notfilter": "!read",
-    "notlimit": 50, "format": "json"}).json()
+    "notlimit": 50, "notwikis": "*", "format": "json"}).json()
 if "query" not in d:
     raise SystemExit(f"Erreur API: {d}")
 items = d["query"]["notifications"]["list"]
 
 seen = set(json.load(open("seen.json"))) if os.path.exists("seen.json") else set()
-import re, html
 for n in items:
-    if str(n["id"]) in seen:
+    wiki = n.get("wiki", "")
+    key = f"{wiki}:{n['id']}"
+    if key in seen or str(n["id"]) in seen:
         continue
     star = n.get("*", "")
     raw = (star.get("header", "") if isinstance(star, dict) else star) or n.get("type", "Notification")
     lines = [l.strip() for l in html.unescape(re.sub(r"<[^>]+>", "\n", raw)).split("\n")]
     header = next((l for l in lines if l), "Notification")
-    requests.post(f"https://ntfy.sh/{os.environ['NTFY_TOPIC']}",
-        data=header.encode("utf-8"),
-        headers={"Title": "Minecraft Wiki", "Click": "https://fr.minecraft.wiki/"})
-    seen.add(str(n["id"]))
+    requests.post("https://ntfy.sh/", json={
+        "topic": os.environ["NTFY_TOPIC"],
+        "title": f"⛏️ {wiki or 'Minecraft Wiki'}",
+        "message": header,
+        "click": "https://fr.minecraft.wiki/",
+    })
+    seen.add(key)
 json.dump(sorted(seen), open("seen.json", "w"))
