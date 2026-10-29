@@ -27,7 +27,8 @@ for n in items:
         continue
     star = n.get("*", "")
     raw = (star.get("header", "") if isinstance(star, dict) else star) or n.get("type", "Notification")
-    header = html.unescape(re.sub(r"<[^>]+>", "", raw)).strip()
+    lines = [l.strip() for l in html.unescape(re.sub(r"<[^>]+>", "\n", raw)).split("\n")]
+    header = next((l for l in lines if l), "Notification")
     requests.post(f"https://ntfy.sh/{os.environ['NTFY_TOPIC']}",
         data=header.encode("utf-8"),
         headers={"Title": "Minecraft Wiki", "Click": "https://fr.minecraft.wiki/"})
