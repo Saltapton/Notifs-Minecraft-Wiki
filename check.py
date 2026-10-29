@@ -25,7 +25,8 @@ import re, html
 for n in items:
     if str(n["id"]) in seen:
         continue
-    raw = n.get("*", {}).get("header") or n.get("type", "Notification")
+    star = n.get("*", "")
+    raw = (star.get("header", "") if isinstance(star, dict) else star) or n.get("type", "Notification")
     header = html.unescape(re.sub(r"<[^>]+>", "", raw)).strip()
     requests.post(f"https://ntfy.sh/{os.environ['NTFY_TOPIC']}",
         data=header.encode("utf-8"),
